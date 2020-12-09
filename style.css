@@ -1,0 +1,32 @@
+.container{
+    background-color: azure;
+    height: 100vh;
+}
+
+.square{
+    width: 33%;
+    height: 33vh ;
+}
+
+.bottom{
+    border-bottom-color: rgba(52, 58, 64, 0.500);
+    border-bottom-style: solid;
+    border-bottom-width: 2.5px;
+}
+.left{
+    border-left-color: rgba(52, 58, 64, 0.500);
+    border-left-style: solid;
+    border-left-width: 2.5px;
+}
+.right{
+    border-right-color: rgba(52, 58, 64, 0.500);
+    border-right-style: solid;
+    border-right-width: 2.5px;
+}
+
+.top{
+    border-top-color: rgba(52, 58, 64, 0.500);
+    border-top-style: solid;
+    border-top-width: 2.5px;
+}
+
