@@ -1,3 +1,7 @@
+//OBJECTS ------------------------------------------------
+let game = {};
+
+
 //DOM ELEMENTS
 const gameboardDiv = document.getElementById('gameboard');
 
@@ -9,8 +13,35 @@ const gameboardDiv = document.getElementById('gameboard');
 const squareFactory = () => {
     const square = document.createElement('div');
     square.classList.add("square", "text-center");
+    square.addEventListener('click', element => selectSquare(element.currentTarget));
     return square;
 }
+
+const gameFactory = () => {
+    let board = [];
+
+    return {board}
+}
+
+
+// FUNCTIONS ---------------------------------------------------------------------------
+
+/**
+ * Whenever a square is clicked, it should display a mark and update the gameboard
+ * to reflect that it is selected
+ * 
+ * @param {Node} square where mark is going to appear
+ */
+function selectSquare(square){
+    const squareIndex = square.dataset.gameboardIndex;
+    
+    if (!game.board[squareIndex]){
+        game.board[squareIndex] = 'X';
+        square.textContent = 'X';
+    }
+}
+
+
 
 /**
  * Depending on the square position, different classes will be added 
@@ -47,8 +78,19 @@ function renderBoard(){
         const square = squareFactory();
         const classesToAdd = determineClassesToAdd(i);
         addClassesToSquare(square, classesToAdd);
+        setSquareDataAttributes(square, i);
         gameboardDiv.appendChild(square);
     }
+}
+
+/**
+ * each square will have a data- attribute with its position within the gameboard
+ * that will bind it with its corresponding gameboard index, in order to update that
+ * value when clicked
+ * @param {int} squarePosition in the gameboard
+ */
+function setSquareDataAttributes(square, squarePosition){
+    square.dataset.gameboardIndex = `${squarePosition}`;
 }
 
 
@@ -63,5 +105,11 @@ function addClassesToSquare(square, classes){
     }
 }
 
-renderBoard();
+function initializeGame(){
+    renderBoard();
+    game = gameFactory();
+
+}
+
+initializeGame();
 
