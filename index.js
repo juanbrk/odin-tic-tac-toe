@@ -4,6 +4,7 @@ let game = {};
 
 //DOM ELEMENTS
 const gameboardDiv = document.getElementById('gameboard');
+const turnIndicator = document.getElementById('who-plays');
 
 //Factory functions
 
@@ -18,9 +19,20 @@ const squareFactory = () => {
 }
 
 const gameFactory = () => {
+    const whosTurnItIs = () => movesLeft%2=== 0 ? 'Player 2' : 'Player 1';
+    const updateWhosNext = () => {
+        movesLeft = movesLeft - 1 ;
+    }
     let board = [];
+    let movesLeft = 9;
 
-    return {board}
+    return {board, whosTurnItIs, updateWhosNext}
+}
+
+const playerFactory = (mark) => {
+    let moves = []; // will store gameboard indexes where its mark is placed
+    const updateMoves = (markIndex) => moves.push(markIndex); //MIGHT NEED TO SORT IT IN ORDER TO MATCH WINNING CONDITIONS
+    return {mark, updateMoves}
 }
 
 
@@ -34,11 +46,52 @@ const gameFactory = () => {
  */
 function selectSquare(square){
     const squareIndex = square.dataset.gameboardIndex;
-    
+    let whoPlays = game.whosTurnItIs();
+    let mark = whoPlays === 'Player 1' ? `${playerOne.mark}` : `${playerTwo.mark}`
+
     if (!game.board[squareIndex]){
-        game.board[squareIndex] = 'X';
-        square.textContent = 'X';
+        makeMove(square, mark, squareIndex);
+        updatePlayerMoves(whoPlays, squareIndex);
+        // check if winner
+        updateWhosNext();
+
+
     }
+}
+
+
+/**
+ * every move a player makes needs to be logged into its personal moves array
+ * 
+ */
+function updatePlayerMoves(whoPlayed, markIndex){
+    if (whoPlayed === 'Player 1') {
+        playerOne.updateMoves(markIndex);
+    } else {
+        playerTwo.updateMoves(markIndex);
+    }
+}
+
+/**
+ * If a square is empty, print player's mark inside it, update gameboard
+ * and update who will play next
+ * 
+ * @param {String} mark that will be go inside the selected square
+ */
+function makeMove(selectedSquare, mark, gameBoardIndex){
+    game.board[gameBoardIndex] = mark;
+    selectedSquare.textContent = mark ;
+}
+
+
+/**
+ * After each move, turn indicator should be updated to indicate who's next
+ * and to allow proper marks to appear on board
+ */
+function updateWhosNext(){
+    game.updateWhosNext() ;
+    let whoPlays = game.whosTurnItIs();
+    turnIndicator.textContent = whoPlays;
 }
 
 
@@ -108,8 +161,13 @@ function addClassesToSquare(square, classes){
 function initializeGame(){
     renderBoard();
     game = gameFactory();
+    playerOne = playerFactory('X');
+    playerTwo = playerFactory('O');
+
+    turnIndicator.textContent = game.whosTurnItIs();
 
 }
 
 initializeGame();
+
 
