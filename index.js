@@ -32,8 +32,7 @@ const gameFactory = () => {
     
             const rowWin = playerRowMoves.indexOf(3) != -1;
             const colWin = playerColMoves.indexOf(3) != -1;
-            const diagonalWin = playerRowMoves.every(rowValue => rowValue == 1) &&
-                    playerColMoves.every(colValue => colValue == 1);// This isn't working properly
+            const diagonalWin = player.getMainDiagonalMoves() == 3 || player.getOppositeDiagonalMoves() == 3;  
 
             playerWon = rowWin || colWin || diagonalWin ;
         } 
@@ -51,13 +50,30 @@ const gameFactory = () => {
 }
 
 const playerFactory = (mark) => {
+    let moves = 0;
     let rowMoves = [0,0,0]; 
     let colMoves = [0,0,0];
+    let mainDiagonalMoves = 0;
+    let oppositeDiagonalMoves = 0;
     const updateMoves = (rowCoordinate, columnCoordinate) =>{
+        moves = moves + 1;
         rowMoves[rowCoordinate]++;
         colMoves[columnCoordinate]++;
+        
+        if (rowCoordinate === columnCoordinate){ //indexes at main diagonal are always the same
+            mainDiagonalMoves++;
+        }
+
+        if ( (rowCoordinate + columnCoordinate) === 2){ //indexes at opposite diagonal always add up 2
+            oppositeDiagonalMoves++;
+        }
     } ; 
-    return {mark, updateMoves, rowMoves, colMoves}
+
+    const getMainDiagonalMoves = () => mainDiagonalMoves;
+    const getOppositeDiagonalMoves = () => oppositeDiagonalMoves;
+
+    const getMoves = () => moves;
+    return {mark, updateMoves, rowMoves, colMoves, getMoves, getMainDiagonalMoves, getOppositeDiagonalMoves}
 }
 
 
@@ -82,7 +98,6 @@ function selectSquare(square){
     if (!game.board[squareIndex]){
         makeMove(square, mark, squareIndex);
         updatePlayerMoves(whoPlays, squareRowCoordinate, squareColumnCoordinate);
-        // check if winner
         const playerWon = checkIfWinner(whoPlays);
         if(!playerWon){
             const tie = game.checkIfTie();
