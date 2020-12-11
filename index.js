@@ -33,7 +33,7 @@ const gameFactory = () => {
             const rowWin = playerRowMoves.indexOf(3) != -1;
             const colWin = playerColMoves.indexOf(3) != -1;
             const diagonalWin = playerRowMoves.every(rowValue => rowValue == 1) &&
-                    playerColMoves.every(colValue => colValue == 1);
+                    playerColMoves.every(colValue => colValue == 1);// This isn't working properly
 
             playerWon = rowWin || colWin || diagonalWin ;
         } 
@@ -41,11 +41,13 @@ const gameFactory = () => {
         return playerWon;
     }
 
+    const checkIfTie = () => movesLeft === 0;
+
 
     let board = [];
     let movesLeft = 9;
 
-    return {board, whosTurnItIs, updateMovesLeft, checkIfPlayerWon}
+    return {board, whosTurnItIs, updateMovesLeft, checkIfPlayerWon, checkIfTie}
 }
 
 const playerFactory = (mark) => {
@@ -70,7 +72,7 @@ const playerFactory = (mark) => {
 function selectSquare(square){
     const squareIndex = square.dataset.gameboardIndex; // index to update gameboard array
 
-    // This helps to determine a winner
+    // This helps  determine a winner
     const squareColumnCoordinate = Number(square.dataset.column);
     const squareRowCoordinate = Number(square.dataset.row);
 
@@ -83,7 +85,12 @@ function selectSquare(square){
         // check if winner
         const playerWon = checkIfWinner(whoPlays);
         if(!playerWon){
-            updateWhosNext();
+            const tie = game.checkIfTie();
+            if (tie){
+                alert("GAME OVER");
+            } else {
+                updateWhosNext();
+            }
         } else {
             //Player WON
             alert(`${whoPlays} WINS!`);
