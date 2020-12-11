@@ -1,11 +1,29 @@
 .container{
-    background-color: azure;
-    height: 100vh;
+    height: auto;
+    max-width:364px !important;
+    margin: 1.5rem;
+    padding: 3rem;
 }
 
+#title{
+    justify-content: center;
+}
+#gameboard{
+    justify-content: center;
+    background-color: azure;
+}
+#who-plays{
+    justify-content: center;
+    margin: 1.5rem auto;
+    font-weight: 400;
+    font-family: Helvetica, sans-serif;
+    color: rgb(108, 117, 125);
+    letter-spacing: 0.125rem;
+}
 .square{
-    width: 33%;
-    height: 33vh ;
+    width: 100px;
+    height: 100px ;
+    font-size: 65px;
 }
 
 .square:hover{

@@ -87,14 +87,18 @@ function selectSquare(square){
         if(!playerWon){
             const tie = game.checkIfTie();
             if (tie){
-                alert("GAME OVER");
+                turnIndicator.textContent = `It's a tie!`;
+                turnIndicator.classList.add('text-warning');
             } else {
                 updateWhosNext();
             }
         } else {
             //Player WON
-            alert(`${whoPlays} WINS!`);
-            //Finish game
+            turnIndicator.textContent = `${whoPlays} WINS!`.toUpperCase();
+            turnIndicator.classList.add('text-success');
+            // Finish game
+            // Prevent new clicks
+            // display restart button 
         }
     }
 }
@@ -148,7 +152,7 @@ function makeMove(selectedSquare, mark, gameBoardIndex){
  */
 function updateWhosNext(){
     let whoPlays = game.whosTurnItIs();
-    turnIndicator.textContent = whoPlays;
+    turnIndicator.textContent = `${whoPlays} moves`;
 }
 
 
@@ -276,7 +280,7 @@ function initializeGame(){
     playerOne = playerFactory('X');
     playerTwo = playerFactory('O');
 
-    turnIndicator.textContent = game.whosTurnItIs();
+    turnIndicator.textContent = `${game.whosTurnItIs()} starts`;
 
 }
 
