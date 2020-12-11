@@ -8,6 +8,10 @@
     height: 33vh ;
 }
 
+.square:hover{
+    background-color: rgba(0, 127, 255, 0.1);
+}
+
 .bottom{
     border-bottom-color: rgba(52, 58, 64, 0.500);
     border-bottom-style: solid;
