@@ -20,19 +20,42 @@ const squareFactory = () => {
 
 const gameFactory = () => {
     const whosTurnItIs = () => movesLeft%2=== 0 ? 'Player 2' : 'Player 1';
-    const updateWhosNext = () => {
+    const updateMovesLeft = () => {
         movesLeft = movesLeft - 1 ;
     }
+    const checkIfPlayerWon = (player) => {
+        let playerWon = false;
+
+        if (movesLeft <= 4) { // Only after 4 turns a game can be won
+            const playerRowMoves = player.rowMoves;
+            const playerColMoves = player.colMoves;
+    
+            const rowWin = playerRowMoves.indexOf(3) != -1;
+            const colWin = playerColMoves.indexOf(3) != -1;
+            const diagonalWin = playerRowMoves.every(rowValue => rowValue == 1) &&
+                    playerColMoves.every(colValue => colValue == 1);
+
+            playerWon = rowWin || colWin || diagonalWin ;
+        } 
+
+        return playerWon;
+    }
+
+
     let board = [];
     let movesLeft = 9;
 
-    return {board, whosTurnItIs, updateWhosNext}
+    return {board, whosTurnItIs, updateMovesLeft, checkIfPlayerWon}
 }
 
 const playerFactory = (mark) => {
-    let moves = []; // will store gameboard indexes where its mark is placed
-    const updateMoves = (markIndex) => moves.push(markIndex); //MIGHT NEED TO SORT IT IN ORDER TO MATCH WINNING CONDITIONS
-    return {mark, updateMoves}
+    let rowMoves = [0,0,0]; 
+    let colMoves = [0,0,0];
+    const updateMoves = (rowCoordinate, columnCoordinate) =>{
+        rowMoves[rowCoordinate]++;
+        colMoves[columnCoordinate]++;
+    } ; 
+    return {mark, updateMoves, rowMoves, colMoves}
 }
 
 
@@ -45,18 +68,44 @@ const playerFactory = (mark) => {
  * @param {Node} square where mark is going to appear
  */
 function selectSquare(square){
-    const squareIndex = square.dataset.gameboardIndex;
+    const squareIndex = square.dataset.gameboardIndex; // index to update gameboard array
+
+    // This helps to determine a winner
+    const squareColumnCoordinate = Number(square.dataset.column);
+    const squareRowCoordinate = Number(square.dataset.row);
+
     let whoPlays = game.whosTurnItIs();
     let mark = whoPlays === 'Player 1' ? `${playerOne.mark}` : `${playerTwo.mark}`
 
     if (!game.board[squareIndex]){
         makeMove(square, mark, squareIndex);
-        updatePlayerMoves(whoPlays, squareIndex);
+        updatePlayerMoves(whoPlays, squareRowCoordinate, squareColumnCoordinate);
         // check if winner
-        updateWhosNext();
-
-
+        const playerWon = checkIfWinner(whoPlays);
+        if(!playerWon){
+            updateWhosNext();
+        } else {
+            //Player WON
+            alert(`${whoPlays} WINS!`);
+            //Finish game
+        }
     }
+}
+
+/**
+ * After every player move, check if player wins
+ * 
+ * @param {String} whoPlayed 
+ */
+function checkIfWinner(whoPlayed){
+    let playerWon = false;
+    if (whoPlayed === 'Player 1') {
+        playerWon = game.checkIfPlayerWon(playerOne);
+    } else {
+        playerWon = game.checkIfPlayerWon(playerTwo);
+    }
+
+    return playerWon;
 }
 
 
@@ -64,11 +113,11 @@ function selectSquare(square){
  * every move a player makes needs to be logged into its personal moves array
  * 
  */
-function updatePlayerMoves(whoPlayed, markIndex){
+function updatePlayerMoves(whoPlayed, rowCoordinate, columnCoordinate){
     if (whoPlayed === 'Player 1') {
-        playerOne.updateMoves(markIndex);
+        playerOne.updateMoves(rowCoordinate, columnCoordinate);
     } else {
-        playerTwo.updateMoves(markIndex);
+        playerTwo.updateMoves(rowCoordinate, columnCoordinate);
     }
 }
 
@@ -81,6 +130,8 @@ function updatePlayerMoves(whoPlayed, markIndex){
 function makeMove(selectedSquare, mark, gameBoardIndex){
     game.board[gameBoardIndex] = mark;
     selectedSquare.textContent = mark ;
+    game.updateMovesLeft() ;
+
 }
 
 
@@ -89,7 +140,6 @@ function makeMove(selectedSquare, mark, gameBoardIndex){
  * and to allow proper marks to appear on board
  */
 function updateWhosNext(){
-    game.updateWhosNext() ;
     let whoPlays = game.whosTurnItIs();
     turnIndicator.textContent = whoPlays;
 }
@@ -137,13 +187,68 @@ function renderBoard(){
 }
 
 /**
- * each square will have a data- attribute with its position within the gameboard
- * that will bind it with its corresponding gameboard index, in order to update that
- * value when clicked
+ * each square will have two  data- attributes with its row and column coordinates inside 
+ * the gameboard that will be useful when player selects the square
  * @param {int} squarePosition in the gameboard
  */
 function setSquareDataAttributes(square, squarePosition){
+    
     square.dataset.gameboardIndex = `${squarePosition}`;
+    square.dataset.row = setRowAttribute(squarePosition);
+    square.dataset.column = setColAttribute(squarePosition);
+}
+
+/**
+ * Every square will have a data-column attribute that refers to its column inside
+ * the gameboard matrix
+ * 
+ * @param {*} markCoordinate 
+ */
+function setColAttribute(markCoordinate){
+    let firstCol = [0,3,6];
+    let secondCol = [1,4,7];
+    let thirdCol = [2,5,8];
+    let colAttribute = '';
+
+    if (firstCol.indexOf(markCoordinate) != -1) {
+        colAttribute = '0';
+    }
+
+    if (secondCol.indexOf(markCoordinate) != -1) {
+        colAttribute = '1'
+    };
+    
+    if (thirdCol.indexOf(markCoordinate) != -1) {
+        colAttribute = '2'
+    };
+
+    return colAttribute;
+
+}
+
+/**
+ * Every square will have a data-row attribute that refers to its row inside
+ * the gameboard matrix
+ * @param {*} markCoordinate 
+ */
+function setRowAttribute(markCoordinate){
+    //set row
+    let rowAttribute = '';
+
+    if (markCoordinate < 3) { // First row
+        rowAttribute = '0';
+    } 
+    
+    if (markCoordinate >= 3 && markCoordinate < 6){
+        rowAttribute = '1';
+    }
+
+    if (markCoordinate >= 6){
+        rowAttribute = '2';
+    }
+
+    return rowAttribute;
+
 }
 
 
